@@ -31,7 +31,9 @@ for (const filename of [dmgName, sourceName, "SHA256SUMS.txt"]) {
 try {
   const source = join(staging, `JSON-Workbench-v${version}-raycast-extension`);
   await mkdir(source);
-  run("tar", ["-xf", "-", "-C", source], { input: run("git", ["archive", "--format=tar", "HEAD"]) });
+  const archive = join(staging, "source.tar");
+  run("git", ["archive", "--format=tar", `--output=${archive}`, "HEAD"]);
+  run("tar", ["-xf", archive, "-C", source]);
   const app = join(source, "assets", "JSON Workbench.app");
   run("codesign", ["--verify", "--deep", "--strict", app]);
   const architectures = run("lipo", ["-archs", join(app, "Contents/MacOS/JSONEditor")], { encoding: "utf8" }).trim();

@@ -6,7 +6,7 @@ Edit, inspect, transform, and convert JSON locally. **Open JSON Editor** launche
 
 ## Download without the Store
 
-Get the prebuilt universal macOS app and Raycast Script Command from [GitHub Releases](https://github.com/Stxr/raycast-json-preview/releases/latest). Install the app in Applications, copy the included scripts to a permanent folder, then add that folder in Raycast Settings → Extensions → + → Add Script Directory. No Node.js or Xcode is needed.
+Get the prebuilt universal macOS app and Raycast Script Command from [GitHub Releases](https://github.com/Stxr/raycast-json-preview/releases/latest). Install the app in Applications, copy the included scripts to a permanent folder, then add that folder in Raycast Settings → Script Commands → Script Folders → +. No Node.js or Xcode is needed.
 
 For the native **Preview JSON** command and selected-text input, the release also provides the full extension source ZIP with a prebuilt helper; install it using Node.js 22+ and `npm ci && npm run dev`. See the [English / 中文 installation guide](docs/install.md) for both methods and the first-launch steps for this ad-hoc signed, unnotarized app.
 

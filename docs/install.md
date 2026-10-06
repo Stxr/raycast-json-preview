@@ -13,7 +13,7 @@ This release has an ad-hoc integrity signature and **is not signed with an Apple
 ## Add the Raycast command
 
 1. Copy the disk image's **Raycast Scripts** folder to a permanent location, for example `~/Documents/JSON Workbench Scripts`. Keep `open-json-workbench.sh` and `icon.png` together. Do this before ejecting the disk image.
-2. Open **Raycast Settings → Extensions → + → Add Script Directory**, then select the folder you copied. This is Raycast's [official Script Commands installation flow](https://github.com/raycast/script-commands#install-script-commands-from-this-repository).
+2. Open **Raycast Settings → Script Commands → Script Folders → +**, then select the folder you copied. Older versions use **Extensions → + → Add Script Directory**. This follows Raycast's [official Script Commands installation flow](https://github.com/raycast/script-commands#install-script-commands-from-this-repository).
 3. Search **Open JSON Workbench** in Raycast. With no argument, it opens clipboard text or a copied local file. You can pass JSON text, an absolute file path, or a `file://` URL. A new editor window opens for each invocation.
 
 The editor includes automatic formatting, copy, transforms, conversion, collapse / expand, and always-on-top. This Script Command uses the clipboard; selected-text input and the **Preview JSON** tree inside Raycast belong to the full extension below.
@@ -54,7 +54,7 @@ The DMG contains `BUILD.json` with the version, source commit, architectures, an
 2. 打开后，将 **JSON Workbench.app** 拖入 **Applications（应用程序）**，再打开一次。应用可以独立使用，无需 Node.js 或 Xcode。
 3. 此版本未进行 Apple Developer ID 签名或公证。下载后首次启动可能被 macOS 拦截；确认来源及校验值后，先尝试打开，再到 **系统设置 → 隐私与安全性 → 仍要打开** 完成确认，详见上方 Apple 官方说明。
 4. 把 DMG 里的 **Raycast Scripts** 文件夹复制到长期保留的位置，例如“文稿”目录；不要直接从 DMG 添加脚本。
-5. 在 **Raycast 设置 → Extensions → + → Add Script Directory** 选择复制后的文件夹，即可搜索 **Open JSON Workbench**。默认读取剪贴板，也可填写 JSON 文本或文件绝对路径。
+5. 在 **Raycast 设置 → Script Commands → Script Folders → +** 选择复制后的文件夹，即可搜索 **Open JSON Workbench**。默认读取剪贴板，也可填写 JSON 文本或文件绝对路径。
 
 该安装方式包含完整编辑窗口：自动格式化复制、过滤时双栏、转换、折叠/展开、始终置顶。若还需要 Raycast 内部的 **Preview JSON** 树状预览和选中文本输入，请下载 **raycast-extension.zip**，安装 Node.js 22+，按上方命令执行 `npm ci` 和 `npm run dev`。源码包已包含编译好的窗口，无需 Xcode。
 

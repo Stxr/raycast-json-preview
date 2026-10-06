@@ -6,7 +6,7 @@
 
 使用需要 macOS 13+。
 
-**直接下载安装：** 在 [GitHub Releases](https://github.com/Stxr/raycast-json-preview/releases/latest) 下载通用版 DMG，把应用拖入 Applications，把附带的 Raycast Scripts 文件夹复制到固定位置，再在 Raycast 设置 → Extensions → + → Add Script Directory 添加它。搜索 **Open JSON Workbench** 即可读取剪贴板或指定文件，免 Node.js、免 Xcode。此版本未进行 Apple 公证，首次启动可能需要在系统设置中确认；完整步骤见 [安装说明](docs/install.md)。
+**直接下载安装：** 在 [GitHub Releases](https://github.com/Stxr/raycast-json-preview/releases/latest) 下载通用版 DMG，把应用拖入 Applications，把附带的 Raycast Scripts 文件夹复制到固定位置，再在 Raycast 设置 → Script Commands → Script Folders → + 添加它。搜索 **Open JSON Workbench** 即可读取剪贴板或指定文件，免 Node.js、免 Xcode。此版本未进行 Apple 公证，首次启动可能需要在系统设置中确认；完整步骤见 [安装说明](docs/install.md)。
 
 **完整 Raycast 扩展：** 若需要 Raycast 内部树状预览与选中文本输入，下载 Release 的 raycast-extension.zip，安装 Node.js 22+，进入解压目录执行以下命令。源码包已包含预构建窗口，无需重新编译 Swift；只有修改原生窗口时才需要 Xcode Command Line Tools 和 `npm run build:editor`。
 
