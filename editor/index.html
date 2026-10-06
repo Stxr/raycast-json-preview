@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; worker-src 'none'"
+    />
+    <title>JSON Preview</title>
+    <link rel="stylesheet" href="editor.css" />
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <span class="mark">{ }</span><strong>JSON Preview</strong><span class="local">本地处理</span>
+      </div>
+      <nav aria-label="文件操作">
+        <button id="pin" title="始终置顶" aria-label="始终置顶" aria-pressed="false">置顶</button>
+        <select id="output-format" aria-label="复制与保存格式" title="选择复制与保存的格式">
+          <option value="json">JSON</option>
+          <option value="yaml">YAML</option>
+          <option value="xml">XML</option>
+          <option value="typescript">TypeScript</option>
+          <option value="escaped">转义 JSON</option>
+        </select>
+        <button id="open" title="打开文件 · ⌘O">打开</button>
+        <button id="paste" title="替换输入为剪贴板内容 · ⌘⇧V">粘贴</button>
+        <button id="copy" title="复制完整结果 · ⌘⇧C">复制结果</button>
+        <button id="save" title="保存完整结果 · ⌘S">保存结果</button>
+      </nav>
+    </header>
+    <main class="single">
+      <section class="pane source-pane" aria-label="输入编辑器">
+        <div class="pane-heading">
+          <span>输入 <small id="input-name">剪贴板 / 选中文本</small></span
+          ><span id="input-format">JSON</span>
+        </div>
+        <div id="source" class="editor"></div>
+      </section>
+      <div id="divider" role="separator" aria-label="调整左右宽度" aria-orientation="vertical" tabindex="0"></div>
+      <section class="pane result-pane" aria-label="结果预览">
+        <div class="pane-heading">
+          <span>结果 <small id="result-info">实时预览</small></span
+          ><span id="result-format">JSON</span>
+        </div>
+        <div id="result" class="editor"></div>
+      </section>
+    </main>
+    <div id="status" role="status" aria-live="polite">粘贴 JSON，或打开文件开始预览。</div>
+    <footer>
+      <span class="this-label" title="this 指向左侧解析后的数据">this</span>
+      <input
+        id="expression"
+        aria-label="JavaScript 表达式"
+        placeholder=";Object.values(this).map(x => x.map(y => y.name))"
+        spellcheck="false"
+        autocomplete="off"
+      />
+      <button id="run" title="执行表达式 · ⌘↵">↵</button>
+      <div class="tools">
+        <button id="format" title="格式化输入 · ⌘⇧F">{ }</button>
+        <button id="fold" title="折叠所有节点">折叠</button>
+        <button id="unfold" title="展开所有节点">展开</button>
+        <button id="compact" title="压缩 JSON 并复制 · ⌥C">压缩复制</button>
+        <button id="escaped-copy" title="压缩转义 JSON 并复制 · ⌥反斜杠">转义复制</button>
+        <button id="sort" title="递归排序 JSON 字段">排序</button>
+        <select id="indent" aria-label="缩进空格数">
+          <option value="2">2 空格</option>
+          <option value="4">4 空格</option>
+        </select>
+      </div>
+    </footer>
+    <script src="editor.js"></script>
+  </body>
+</html>
