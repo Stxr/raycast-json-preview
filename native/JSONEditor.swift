@@ -13,7 +13,7 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
         let menu = NSMenu()
         let appMenuItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "Quit JSON Preview", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "Quit JSON Workbench", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appMenuItem.submenu = appMenu
         menu.addItem(appMenuItem)
         let editMenuItem = NSMenuItem()
@@ -42,7 +42,7 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
         webView.navigationDelegate = self
         webView.uiDelegate = self
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1180, height: 800), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-        window.title = "JSON Preview"
+        window.title = "JSON Workbench"
         window.minSize = NSSize(width: 680, height: 460)
         window.contentView = webView
         window.delegate = self
@@ -69,7 +69,7 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
         guard message.frameInfo.isMainFrame, let body = message.body as? [String: Any], let action = body["action"] as? String else { return }
         switch action {
         case "ready":
-            emit(["action": "load", "text": initialText, "name": "剪贴板 / 选中文本", "indent": initialIndent])
+            emit(["action": "load", "text": initialText, "name": "Clipboard / Selection", "indent": initialIndent])
             emit(["action": "pin", "value": window.level == .floating])
             initialText = ""
         case "pin":
@@ -82,12 +82,12 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
             window.isDocumentEdited = dirty
         case "paste":
             let text = NSPasteboard.general.string(forType: .string) ?? ""
-            if text.utf8.count > maxBytes { emit(["action": "error", "message": "剪贴板内容超过 8 MiB。"]) }
-            else { emit(["action": "paste", "text": text, "name": "剪贴板"]) }
+            if text.utf8.count > maxBytes { emit(["action": "error", "message": "Clipboard contents exceed 8 MiB."]) }
+            else { emit(["action": "paste", "text": text, "name": "Clipboard"]) }
         case "copy":
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(body["text"] as? String ?? "", forType: .string)
-            emit(["action": "notice", "message": "已复制结果"])
+            emit(["action": "notice", "message": "Result copied"])
         case "open":
             let panel = NSOpenPanel()
             panel.canChooseDirectories = false
@@ -96,9 +96,9 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
                 guard response == .OK, let url = panel.url, let self else { return }
                 do {
                     let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
-                    guard (attributes[.size] as? Int ?? 0) <= self.maxBytes else { throw NSError(domain: "JSONPreview", code: 1, userInfo: [NSLocalizedDescriptionKey: "文件超过 8 MiB。"] ) }
+                    guard (attributes[.size] as? Int ?? 0) <= self.maxBytes else { throw NSError(domain: "JSONPreview", code: 1, userInfo: [NSLocalizedDescriptionKey: "The file exceeds 8 MiB."] ) }
                     let data = try Data(contentsOf: url)
-                    guard data.count <= self.maxBytes, let text = String(data: data, encoding: .utf8) else { throw NSError(domain: "JSONPreview", code: 2, userInfo: [NSLocalizedDescriptionKey: "请选择 UTF-8 文本文件。"] ) }
+                    guard data.count <= self.maxBytes, let text = String(data: data, encoding: .utf8) else { throw NSError(domain: "JSONPreview", code: 2, userInfo: [NSLocalizedDescriptionKey: "Choose a UTF-8 text file."] ) }
                     self.emit(["action": "open", "text": text, "name": url.lastPathComponent])
                 } catch { self.emit(["action": "error", "message": error.localizedDescription]) }
             }
@@ -110,7 +110,7 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
                 guard response == .OK, let url = panel.url, let self else { return }
                 do {
                     try text.write(to: url, atomically: true, encoding: .utf8)
-                    self.emit(["action": "notice", "message": "已保存 \(url.lastPathComponent)"])
+                    self.emit(["action": "notice", "message": "Saved \(url.lastPathComponent)"])
                 } catch { self.emit(["action": "error", "message": error.localizedDescription]) }
             }
         default: break
@@ -120,18 +120,18 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
     func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
         let alert = NSAlert()
         alert.messageText = message
-        alert.addButton(withTitle: "替换")
-        alert.addButton(withTitle: "取消")
+        alert.addButton(withTitle: "Replace")
+        alert.addButton(withTitle: "Cancel")
         alert.beginSheetModal(for: window) { response in completionHandler(response == .alertFirstButtonReturn) }
     }
 
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         guard dirty else { return true }
         let alert = NSAlert()
-        alert.messageText = "关闭编辑窗口？"
-        alert.informativeText = "当前输入有改动。可先取消关闭，再通过“保存结果”导出。"
-        alert.addButton(withTitle: "取消")
-        alert.addButton(withTitle: "关闭")
+        alert.messageText = "Close the editor?"
+        alert.informativeText = "Your input has unsaved changes. Cancel and use Save to export it first."
+        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: "Close")
         let close = alert.runModal() == .alertSecondButtonReturn
         if close { dirty = false }
         return close

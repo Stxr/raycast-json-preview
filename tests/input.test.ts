@@ -12,8 +12,8 @@ test("reads local file paths and leaves JSON text intact", async () => {
     await writeFile(file, '{"city":"天津"}');
     assert.equal((await readInput(file)).text, '{"city":"天津"}');
     assert.equal((await readInput('{"a":1}')).text, '{"a":1}');
-    await assert.rejects(readInput(directory), /文件夹/);
-    await assert.rejects(readInput(join(directory, "missing.json")), /不存在/);
+    await assert.rejects(readInput(directory), /directory/);
+    await assert.rejects(readInput(join(directory, "missing.json")), /does not exist/);
   } finally {
     await rm(directory, { recursive: true });
   }

@@ -19,8 +19,8 @@ export async function initialInput(argument?: string): Promise<string> {
 }
 
 export async function launchEditor(text: string): Promise<void> {
-  const executable = join(environment.assetsPath, "JSON Preview.app", "Contents", "MacOS", "JSONEditor");
-  const html = join(environment.assetsPath, "editor", "index.html");
+  const executable = join(environment.assetsPath, "JSON Workbench.app", "Contents", "MacOS", "JSONEditor");
+  const html = join(environment.assetsPath, "JSON Workbench.app", "Contents", "Resources", "editor", "index.html");
   await access(executable, constants.X_OK);
   await mkdir(environment.supportPath, { recursive: true });
   const request = join(environment.supportPath, `input-${randomUUID()}.json`);

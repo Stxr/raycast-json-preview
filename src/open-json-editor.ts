@@ -9,7 +9,7 @@ export default async function Command(props: LaunchProps<{ arguments: { input?: 
   } catch (error) {
     await showToast({
       style: Toast.Style.Failure,
-      title: "无法打开 JSON 编辑器",
+      title: "Could Not Open JSON Editor",
       message: error instanceof Error ? error.message : String(error),
     });
   }

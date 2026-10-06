@@ -40,13 +40,13 @@ function ValueActions({ value, path, input }: { value: JsonValue; path: string; 
     <ActionPanel>
       {isContainer(value) && (
         <Action
-          title="展开节点"
+          title="Browse Node"
           icon={Icon.List}
           onAction={() => push(<Browser value={value} path={path} input={input} />)}
         />
       )}
       <Action
-        title="完整预览"
+        title="Show Full Preview"
         icon={Icon.Eye}
         onAction={() =>
           push(
@@ -55,33 +55,33 @@ function ValueActions({ value, path, input }: { value: JsonValue; path: string; 
               markdown={codeMarkdown(formatted)}
               actions={
                 <ActionPanel>
-                  <Action.CopyToClipboard title="复制 JSON" content={formatted} />
+                  <Action.CopyToClipboard title="Copy JSON" content={formatted} />
                 </ActionPanel>
               }
             />,
           )
         }
       />
-      <Action.CopyToClipboard title="复制 JSON" content={formatted} shortcut={{ modifiers: ["cmd"], key: "c" }} />
-      <Action.CopyToClipboard title="复制压缩 JSON" content={formatJson(value, 0)} />
-      <Action.CopyToClipboard title="复制路径" content={path} />
+      <Action.CopyToClipboard title="Copy JSON" content={formatted} shortcut={{ modifiers: ["cmd"], key: "c" }} />
+      <Action.CopyToClipboard title="Copy Minified JSON" content={formatJson(value, 0)} />
+      <Action.CopyToClipboard title="Copy Path" content={path} />
       <Action
-        title="在双栏编辑器中打开"
+        title="Open in Editor"
         icon={Icon.Window}
         onAction={() => launchEditor(input)}
         shortcut={Keyboard.Shortcut.Common.Open}
       />
       <Action
-        title="JavaScript 过滤"
+        title="JavaScript Transform"
         icon={Icon.Code}
         onAction={() => push(<QueryForm value={value} input={input} />)}
         shortcut={{ modifiers: ["cmd"], key: "f" }}
       />
-      <ActionPanel.Section title="格式转换">
-        <Action.CopyToClipboard title="复制转义 JSON" content={JSON.stringify(formatJson(value, 0))} />
-        <Action.CopyToClipboard title="复制 TypeScript 类型" content={toTypeScript(value)} />
+      <ActionPanel.Section title="Convert Format">
+        <Action.CopyToClipboard title="Copy Escaped JSON" content={JSON.stringify(formatJson(value, 0))} />
+        <Action.CopyToClipboard title="Copy TypeScript Types" content={toTypeScript(value)} />
         <Action
-          title="复制 YAML"
+          title="Copy YAML"
           onAction={async () => {
             try {
               const { Clipboard } = await import("@raycast/api");
@@ -92,7 +92,7 @@ function ValueActions({ value, path, input }: { value: JsonValue; path: string; 
           }}
         />
         <Action
-          title="复制 XML"
+          title="Copy XML"
           onAction={async () => {
             try {
               const { Clipboard } = await import("@raycast/api");
@@ -110,7 +110,7 @@ function ValueActions({ value, path, input }: { value: JsonValue; path: string; 
 async function failure(error: unknown) {
   await showToast({
     style: Toast.Style.Failure,
-    title: "操作失败",
+    title: "Operation Failed",
     message: error instanceof Error ? error.message : String(error),
   });
 }
@@ -131,7 +131,7 @@ function Browser({ value, path = "this", input }: { value: JsonValue; path?: str
       navigationTitle={path}
       isShowingDetail
       filtering={false}
-      searchBarPlaceholder="搜索当前层字段或值…"
+      searchBarPlaceholder="Search fields or values at this level…"
       onSearchTextChange={(text) => {
         setQuery(text);
         setPage(0);
@@ -139,13 +139,13 @@ function Browser({ value, path = "this", input }: { value: JsonValue; path?: str
     >
       <List.Section title={`${kind(value)} · ${summary(value)}`}>
         <List.Item
-          title="完整 JSON"
+          title="Full JSON"
           icon={Icon.Code}
           detail={<List.Item.Detail markdown={codeMarkdown(formatJson(value))} />}
           actions={<ValueActions value={value} path={path} input={input} />}
         />
       </List.Section>
-      <List.Section title={`${filtered.length} 项 · 第 ${page + 1}/${pages} 页`}>
+      <List.Section title={`${filtered.length} items · Page ${page + 1}/${pages}`}>
         {shown.map(([key, child]) => (
           <List.Item
             key={key}
@@ -159,22 +159,22 @@ function Browser({ value, path = "this", input }: { value: JsonValue; path?: str
         ))}
         {page > 0 && (
           <List.Item
-            title="上一页"
+            title="Previous Page"
             icon={Icon.ArrowLeft}
             actions={
               <ActionPanel>
-                <Action title="上一页" onAction={() => setPage(page - 1)} />
+                <Action title="Previous Page" onAction={() => setPage(page - 1)} />
               </ActionPanel>
             }
           />
         )}
         {page + 1 < pages && (
           <List.Item
-            title="下一页"
+            title="Next Page"
             icon={Icon.ArrowRight}
             actions={
               <ActionPanel>
-                <Action title="下一页" onAction={() => setPage(page + 1)} />
+                <Action title="Next Page" onAction={() => setPage(page + 1)} />
               </ActionPanel>
             }
           />
@@ -191,11 +191,11 @@ function QueryForm({ value, input }: { value: JsonValue; input: string }) {
   return (
     <Form
       isLoading={loading}
-      navigationTitle="JavaScript 过滤"
+      navigationTitle="JavaScript Transform"
       actions={
         <ActionPanel>
           <Action.SubmitForm
-            title="执行并预览"
+            title="Run and Preview"
             onSubmit={async (values: { expression: string }) => {
               setLoading(true);
               try {
@@ -212,8 +212,8 @@ function QueryForm({ value, input }: { value: JsonValue; input: string }) {
         </ActionPanel>
       }
     >
-      <Form.Description text="this 指向当前节点。示例：Object.values(this).map(x => x.map(y => y.name))。支持前置分号和 .map(...) 形式。" />
-      <Form.TextArea id="expression" title="表达式" defaultValue="this" error={error} />
+      <Form.Description text="this is the current node. Example: Object.values(this).map(x => x.map(y => y.name)). Leading semicolons and .map(...) shorthand are supported." />
+      <Form.TextArea id="expression" title="Expression" defaultValue="this" error={error} />
     </Form>
   );
 }
@@ -255,7 +255,7 @@ export default function Command(props: LaunchProps<{ arguments: { input?: string
       actions={
         <ActionPanel>
           <Action.SubmitForm
-            title="预览 JSON"
+            title="Preview JSON"
             onSubmit={async () => {
               try {
                 const input = await readInput(source);
@@ -271,8 +271,8 @@ export default function Command(props: LaunchProps<{ arguments: { input?: string
     >
       <Form.TextArea
         id="source"
-        title="输入"
-        placeholder="粘贴 JSON、YAML、XML、URL 参数，或输入文件的绝对路径"
+        title="Input"
+        placeholder="Paste JSON, YAML, XML, URL parameters, or an absolute file path"
         value={source}
         onChange={setSource}
         error={error}

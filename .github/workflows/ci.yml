@@ -1,0 +1,21 @@
+name: Validate
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run lint:source
+      - run: npm run build
+      - run: lipo -archs 'assets/JSON Workbench.app/Contents/MacOS/JSONEditor'
+      - run: codesign --verify --deep --strict 'assets/JSON Workbench.app'

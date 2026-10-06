@@ -15,16 +15,17 @@ export const PAGE_SIZE = 150;
 export const PREVIEW_CHARS = 30_000;
 
 function normalize(value: unknown, ancestors = new Set<object>(), depth = 0): JsonValue {
-  if (depth > 256) throw new Error("数据嵌套超过 256 层，请先缩小输入范围。");
+  if (depth > 256) throw new Error("The data exceeds 256 nested levels. Reduce the input depth.");
   if (value === null || typeof value === "string" || typeof value === "boolean" || isLosslessNumber(value))
     return value;
   if (typeof value === "bigint") return new LosslessNumber(String(value));
   if (typeof value === "number") {
-    if (!Number.isFinite(value)) throw new Error("JSON 不支持 NaN 或 Infinity。");
+    if (!Number.isFinite(value)) throw new Error("JSON does not support NaN or Infinity.");
     return value;
   }
-  if (typeof value !== "object" || !value) throw new Error("输入包含无法表示为 JSON 的值。");
-  if (ancestors.has(value)) throw new Error("输入包含循环引用，无法转换为 JSON。");
+  if (typeof value !== "object" || !value)
+    throw new Error("The input contains a value that cannot be represented as JSON.");
+  if (ancestors.has(value)) throw new Error("The input contains a circular reference and cannot be converted to JSON.");
   ancestors.add(value);
   let result: JsonValue;
   if (Array.isArray(value)) result = value.map((child) => normalize(child, ancestors, depth + 1));
@@ -38,9 +39,10 @@ function normalize(value: unknown, ancestors = new Set<object>(), depth = 0): Js
 }
 
 export function parseInput(source: string): Document {
-  if (new TextEncoder().encode(source).length > MAX_INPUT_BYTES) throw new Error("输入超过 8 MiB，请拆分文件后预览。");
+  if (new TextEncoder().encode(source).length > MAX_INPUT_BYTES)
+    throw new Error("The input exceeds 8 MiB. Split the file before previewing.");
   const text = source.replace(/^\uFEFF/, "").trim();
-  if (!text) throw new Error("请输入 JSON、YAML、XML 或 URL 参数。");
+  if (!text) throw new Error("Enter JSON, YAML, XML, or URL parameters.");
   let jsonError: unknown;
   try {
     const value = normalize(parse(text));
@@ -56,9 +58,9 @@ export function parseInput(source: string): Document {
     jsonError = error;
   }
   if (text.startsWith("<")) {
-    if (/<!DOCTYPE|<!ENTITY/i.test(text)) throw new Error("XML 不支持 DTD 或自定义实体。");
+    if (/<!DOCTYPE|<!ENTITY/i.test(text)) throw new Error("XML DTDs and custom entities are not supported.");
     const valid = XMLValidator.validate(text);
-    if (valid !== true) throw new Error(`XML 第 ${valid.err.line} 行：${valid.err.msg}`);
+    if (valid !== true) throw new Error(`XML line ${valid.err.line}: ${valid.err.msg}`);
     const value = new XMLParser({ ignoreAttributes: false, parseTagValue: false, parseAttributeValue: false }).parse(
       text,
     );
@@ -66,7 +68,7 @@ export function parseInput(source: string): Document {
   }
   if (/^(https?:\/\/|\?)/.test(text) || /^[^\s{}[\]=:]+=[^\n]*$/.test(text)) {
     const query = /^https?:\/\//.test(text) ? new URL(text).search.slice(1) : text.replace(/^\?/, "");
-    if (!query) throw new Error("URL 中没有查询参数。");
+    if (!query) throw new Error("The URL has no query parameters.");
     const value: Record<string, JsonValue> = Object.create(null);
     for (const [key, item] of new URLSearchParams(query)) {
       if (!Object.hasOwn(value, key)) value[key] = item;
@@ -86,7 +88,7 @@ export function parseInput(source: string): Document {
     const value = yaml.toJS({ maxAliasCount: 25 });
     return { value: normalize(value), format: "YAML", source };
   }
-  throw new Error(`JSON 解析失败：${jsonError instanceof Error ? jsonError.message : String(jsonError)}`);
+  throw new Error(`JSON parsing failed: ${jsonError instanceof Error ? jsonError.message : String(jsonError)}`);
 }
 
 export function formatJson(value: JsonValue, indent = 2): string {
@@ -106,7 +108,7 @@ export function isContainer(value: JsonValue): value is JsonValue[] | Record<str
 
 export function summary(value: JsonValue): string {
   if (isContainer(value))
-    return Array.isArray(value) ? `[${value.length} 项]` : `{${Object.keys(value).length} 个字段}`;
+    return Array.isArray(value) ? `[${value.length} items]` : `{${Object.keys(value).length} fields}`;
   const text = formatJson(value, 0);
   return text.length > 100 ? `${text.slice(0, 100)}…` : text;
 }
@@ -123,7 +125,7 @@ export function codeMarkdown(text: string, language = "json"): string {
   const runs = text.match(/`+/g) ?? [];
   const fence = "`".repeat(Math.max(3, ...runs.map((run) => run.length + 1)));
   const clipped = text.length > PREVIEW_CHARS;
-  return `${fence}${language}\n${text.slice(0, PREVIEW_CHARS)}\n${fence}${clipped ? "\n\n预览仅显示前 30,000 字符；复制与导出仍包含完整内容。" : ""}`;
+  return `${fence}${language}\n${text.slice(0, PREVIEW_CHARS)}\n${fence}${clipped ? "\n\nPreview shows the first 30,000 characters. Copy and export include the complete value." : ""}`;
 }
 
 export function sortKeys(value: JsonValue): JsonValue {
@@ -146,7 +148,7 @@ function plainForConversion(value: JsonValue): unknown {
   if (isLosslessNumber(value)) {
     const numeric = Number(value.value);
     if (/^-?\d+$/.test(value.value) && !Number.isSafeInteger(numeric)) return BigInt(value.value);
-    if (!Number.isFinite(numeric)) throw new Error("数值超出目标格式支持范围，请使用 JSON 导出。");
+    if (!Number.isFinite(numeric)) throw new Error("A number is outside the target format range. Export as JSON.");
     return numeric;
   }
   if (Array.isArray(value)) return value.map(plainForConversion);
@@ -160,7 +162,7 @@ export function toYaml(value: JsonValue): string {
 }
 
 export function toXml(value: JsonValue): string {
-  if (hasUnsafeNumbers(value)) throw new Error("XML 转换可能丢失数字精度，请使用 JSON 或 YAML 导出。");
+  if (hasUnsafeNumbers(value)) throw new Error("XML conversion may lose numeric precision. Export as JSON or YAML.");
   return new XMLBuilder({ format: true, ignoreAttributes: false }).build({ root: plainForConversion(value) });
 }
 

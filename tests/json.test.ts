@@ -40,8 +40,8 @@ test("detects structured YAML and preserves its large integer", () => {
   assert.match(toYaml(value.value), /9007199254740993123/);
 });
 test("rejects malformed JSON, YAML cycles and duplicate keys", () => {
-  assert.throws(() => parseInput('{"bad": }'), /解析失败/);
-  assert.throws(() => parseInput("x: &x\n  recursive: *x"), /循环引用/);
+  assert.throws(() => parseInput('{"bad": }'), /parsing failed/);
+  assert.throws(() => parseInput("x: &x\n  recursive: *x"), /circular reference/);
   assert.throws(() => parseInput("a: 1\na: 2"), /unique|same/i);
 });
 test("converts XML and rejects custom entities", () => {

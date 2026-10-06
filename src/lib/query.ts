@@ -8,9 +8,11 @@ let modulePromise: ReturnType<typeof newQuickJSWASMModuleFromVariant> | undefine
 export async function transform(value: JsonValue, expression: string, timeoutMs = 800): Promise<JsonValue> {
   const text = expression.trim();
   if (!text || text === "this") return value;
-  if (text.length > 10_000) throw new Error("表达式超过 10,000 字符。");
+  if (text.length > 10_000) throw new Error("The expression exceeds 10,000 characters.");
   if (hasUnsafeNumbers(value))
-    throw new Error("输入含 JavaScript Number 无法精确表示的数字。预览仍保留原数值；请先将这些字段改为字符串再过滤。");
+    throw new Error(
+      "This input contains numbers JavaScript cannot represent exactly. Preview preserves them; convert these fields to strings before filtering.",
+    );
   modulePromise ??= newQuickJSWASMModuleFromVariant(variant);
   const engine = await modulePromise;
   const runtime = engine.newRuntime();
@@ -29,11 +31,11 @@ export async function transform(value: JsonValue, expression: string, timeoutMs 
     const code = `(() => {
       const input = JSON.parse(__input);
       const result = (function () { "use strict"; return (${body}\n); }).call(input);
-      if (result === undefined) throw new Error("表达式返回 undefined，请返回有效的 JSON 值。");
-      if (result && typeof result.then === "function") throw new Error("仅支持同步表达式。");
+      if (result === undefined) throw new Error("The expression returned undefined. Return a valid JSON value.");
+      if (result && typeof result.then === "function") throw new Error("Only synchronous expressions are supported.");
       return JSON.stringify(result, function (key, v) {
-        if (typeof v === "number" && !Number.isFinite(v)) throw new Error("结果包含 NaN 或 Infinity。");
-        if (typeof v === "undefined" || typeof v === "function" || typeof v === "symbol" || typeof v === "bigint") throw new Error("结果包含无法表示为 JSON 的值。");
+        if (typeof v === "number" && !Number.isFinite(v)) throw new Error("The result contains NaN or Infinity.");
+        if (typeof v === "undefined" || typeof v === "function" || typeof v === "symbol" || typeof v === "bigint") throw new Error("The result contains a value that cannot be represented as JSON.");
         return v;
       });
     })()`;
@@ -43,8 +45,8 @@ export async function transform(value: JsonValue, expression: string, timeoutMs 
       result.error.dispose();
       throw new Error(
         error?.message === "interrupted"
-          ? "表达式执行超时，请缩小数据或简化表达式。"
-          : error?.message || "表达式执行失败。",
+          ? "The expression timed out. Reduce the input or simplify the expression."
+          : error?.message || "The expression failed.",
       );
     }
     let output: string;
@@ -53,7 +55,8 @@ export async function transform(value: JsonValue, expression: string, timeoutMs 
     } finally {
       result.value.dispose();
     }
-    if (new TextEncoder().encode(output).length > MAX_INPUT_BYTES) throw new Error("表达式结果超过 8 MiB。");
+    if (new TextEncoder().encode(output).length > MAX_INPUT_BYTES)
+      throw new Error("The expression result exceeds 8 MiB.");
     return parse(output) as JsonValue;
   } finally {
     context.dispose();

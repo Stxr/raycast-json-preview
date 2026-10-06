@@ -32,11 +32,11 @@ test("has no filesystem, native bridge, network or process globals", async () =>
 test("rejects unsafe numeric query input while allowing precise preview", async () => {
   const value = parseInput('{"id":9007199254740993}').value;
   assert.equal(formatJson(await transform(value, "this"), 0), '{"id":9007199254740993}');
-  await assert.rejects(transform(value, "this.id + 1"), /精确表示/);
+  await assert.rejects(transform(value, "this.id + 1"), /represent exactly/);
 });
 test("interrupts an infinite loop and recovers on the next query", async () => {
   const start = Date.now();
-  await assert.rejects(transform(null, "(() => { while (true) {} })()", 50), /超时/);
+  await assert.rejects(transform(null, "(() => { while (true) {} })()", 50), /timed out/);
   assert.ok(Date.now() - start < 2000);
   assert.equal(formatJson(await transform(null, "1+1"), 0), "2");
 });

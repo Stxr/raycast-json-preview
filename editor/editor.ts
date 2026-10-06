@@ -130,7 +130,7 @@ function renderOutput() {
   }
   replace(preview, output);
   element("result-info").textContent =
-    `${output.split("\n").length.toLocaleString()} 行 · ${new TextEncoder().encode(output).length.toLocaleString()} 字节`;
+    `${output.split("\n").length.toLocaleString()} lines · ${new TextEncoder().encode(output).length.toLocaleString()} bytes`;
   element<HTMLButtonElement>("copy").disabled = false;
   element<HTMLButtonElement>("save").disabled = false;
   element<HTMLButtonElement>("compact").disabled = false;
@@ -141,8 +141,8 @@ function updateLayout() {
   const main = document.querySelector("main")!;
   main.classList.toggle("single", !filtered);
   main.classList.toggle("converted", outputFormat.value !== "json");
-  element("copy").textContent = filtered ? "复制结果" : "复制";
-  element("save").textContent = filtered ? "保存结果" : "保存";
+  element("copy").textContent = filtered ? "Copy Result" : "Copy";
+  element("save").textContent = filtered ? "Save Result" : "Save";
   element("result-format").textContent = outputFormat.options[outputFormat.selectedIndex].text;
   source.requestMeasure();
   preview.requestMeasure();
@@ -169,18 +169,18 @@ async function refresh() {
       element<HTMLButtonElement>("save").disabled = true;
       element<HTMLButtonElement>("compact").disabled = true;
       element<HTMLButtonElement>("escaped-copy").disabled = true;
-      message("粘贴 JSON，或打开文件开始预览。");
+      message("Paste JSON or open a file to start.");
       return;
     }
     current = parseInput(text);
     element("input-format").textContent = current.format;
-    message(expression.value.trim() ? "正在计算表达式…" : "正在格式化…");
+    message(expression.value.trim() ? "Running expression…" : "Formatting…");
     const next = await transform(current.value, expression.value);
     if (token !== sequence) return;
     result = next;
     renderOutput();
     message(
-      `${current.format} → ${outputFormat.options[outputFormat.selectedIndex].text}  ·  ${expression.value.trim() ? "表达式已执行" : "校验通过"}`,
+      `${current.format} → ${outputFormat.options[outputFormat.selectedIndex].text}  ·  ${expression.value.trim() ? "Expression evaluated" : "Valid input"}`,
     );
   } catch (error) {
     if (token !== sequence) return;
@@ -212,7 +212,12 @@ function guarded(action: () => void) {
   }
 }
 function replaceInput(text: string, name: string, clean: boolean) {
-  if (!clean && source.state.doc.toString() !== baseline && !confirm("替换当前输入？尚未保存的编辑会丢失。")) return;
+  if (
+    !clean &&
+    source.state.doc.toString() !== baseline &&
+    !confirm("Replace the current input? Unsaved edits will be lost.")
+  )
+    return;
   try {
     text = formatJson(parseInput(text).value, Number(indentSelect.value));
   } catch {
@@ -226,12 +231,12 @@ function replaceInput(text: string, name: string, clean: boolean) {
 window.receiveNative = (payload) => {
   if (payload.indent) indentSelect.value = String(payload.indent);
   if (["load", "open", "paste"].includes(payload.action))
-    replaceInput(payload.text ?? "", payload.name ?? "文本", payload.action === "load");
-  else if (payload.action === "error") message(payload.message ?? "操作失败", true);
-  else if (payload.action === "notice") message(payload.message ?? "完成");
+    replaceInput(payload.text ?? "", payload.name ?? "Text", payload.action === "load");
+  else if (payload.action === "error") message(payload.message ?? "Operation Failed", true);
+  else if (payload.action === "notice") message(payload.message ?? "Done");
   else if (payload.action === "pin") {
     element("pin").setAttribute("aria-pressed", String(Boolean(payload.value)));
-    element("pin").textContent = payload.value ? "已置顶" : "置顶";
+    element("pin").textContent = payload.value ? "Pinned" : "Pin";
   }
 };
 element("pin").onclick = () => send({ action: "pin", value: element("pin").getAttribute("aria-pressed") !== "true" });

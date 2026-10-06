@@ -14,3 +14,12 @@
 原始 UPXS 尚未直接解密。安装后 ASAR 可读不证明两者逐字节对应。原生树形浏览未逐项完成桌面导航验收。当前为本地扩展；商店发布须替换 `txr` 为有效 Raycast 作者账号，并运行 `npm run lint:store`。
 
 验证结果不等同于用户最终验收。
+
+## 商店提交版验证
+
+- Raycast 作者账号从当前 Account 设置核对为 `tang_xiangrun`；商店 `ray lint`、全部源码 lint、类型检查、19 项测试与 distribution build 通过。
+- Swift 程序构建为 macOS 13+ 的 arm64 / x86_64 通用程序，`lipo -archs` 与 `codesign --verify --deep --strict` 通过。Intel 二进制已编译，未在真实 Intel Mac 上运行。
+- 工程导入 Raycast 后，将已验证的 distribution 输出用于桌面测试，公开 `demo.json` 成功载入，单面板自动格式化与表达式双栏已确认。
+- 置顶实机核验完成：开关开启时系统窗口层级为 3；重启窗口后开关保持开启；关闭开关后层级恢复 0。测试结束恢复默认关闭。
+- `media/` 中的截图来自同一套已打包编辑器 UI 的浏览器视口，仅使用公开示例；不是完整原生窗口或 Raycast 外框截图。
+- 发布版使用 US English 界面和 README，并保留中文说明。原始 UPXS 未直接解密的边界不变。

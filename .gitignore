@@ -6,5 +6,4 @@ raycast-env.d.ts
 *.upx
 reports/
 assets/JSONEditor
-assets/JSON Preview.app/
 assets/editor/
