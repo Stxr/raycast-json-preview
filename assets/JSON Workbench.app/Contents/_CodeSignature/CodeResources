@@ -4,6 +4,14 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Resources/LICENSE</key>
+		<data>
+		8llgzyJLyiz5PAx+As9TFJhDk+Y=
+		</data>
+		<key>Resources/THIRD-PARTY-NOTICES.txt</key>
+		<data>
+		Cz99+T7RCIENMtNciLQROAG7zjI=
+		</data>
 		<key>Resources/editor/editor.css</key>
 		<data>
 		IFONjdx17b2pnlj+o1BdR9PLlwo=
@@ -23,6 +31,20 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Resources/LICENSE</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			GzvZb6g88WHh/hp4nQMgeX0KHzSL1Lr8x79eeGra2OA=
+			</data>
+		</dict>
+		<key>Resources/THIRD-PARTY-NOTICES.txt</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			PpYx93DD31Hd47OPAsWk+q6tEFl+63hk3d3nMPYOGeA=
+			</data>
+		</dict>
 		<key>Resources/editor/editor.css</key>
 		<dict>
 			<key>hash2</key>

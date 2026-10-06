@@ -1,7 +1,10 @@
 {
   "source": "native/JSONEditor.swift",
-  "sourceSha256": "b7a15193778d5923a15954da84b0d80dd8c5487dfca52a344d6165b4c350efc0",
-  "executableSha256": "b130e333e16eeacb8cb2e91d38d4d9115bf72c5c9fbd3c822596e05c95868e51",
+  "sourceSha256": "5c415e651958cd4bcbb9670df5ce1f68aa8f50b7fb917a54ffa1519aa53882fe",
+  "launchInputSource": "native/LaunchInput.swift",
+  "launchInputSourceSha256": "45f95bb4f769d8ee30189dff053160e817a530aa3ef1aaa2daa1126c67179055",
+  "version": "0.1.0",
+  "executableSha256": "697a3ca5e9357ae7b7cd07f55e38a61755a603ec1e9f7c7d178db19557ede40d",
   "editorSha256": "9c85ed407785a5815b3638601a2cb22cb7d7dfa2ca493a2441c84cf7295a0ba5",
   "architectures": [
     "arm64",

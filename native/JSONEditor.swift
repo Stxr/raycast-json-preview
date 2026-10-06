@@ -6,6 +6,8 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
     private var webView: WKWebView!
     private var initialText = ""
     private var initialIndent = 2
+    private var initialName = "Untitled"
+    private var startupError: String?
     private var dirty = false
     private let maxBytes = 8 * 1024 * 1024
 
@@ -25,15 +27,35 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
         menu.addItem(editMenuItem)
         NSApp.mainMenu = menu
 
-        if CommandLine.arguments.count > 2 {
-            let request = URL(fileURLWithPath: CommandLine.arguments[2])
-            if let data = try? Data(contentsOf: request),
-               let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                initialText = payload["text"] as? String ?? ""
-                initialIndent = payload["indent"] as? Int == 4 ? 4 : 2
+        var html = Bundle.main.resourceURL!.appendingPathComponent("editor/index.html")
+        do {
+            switch try LaunchInput.parse(Array(CommandLine.arguments.dropFirst())) {
+            case .empty: break
+            case .clipboard:
+                if let files = NSPasteboard.general.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL], let file = files.first {
+                    initialText = try LaunchInput.readFile(file)
+                    initialName = file.lastPathComponent
+                } else {
+                    initialText = try LaunchInput.checkedText(NSPasteboard.general.string(forType: .string) ?? "")
+                    initialName = "Clipboard"
+                }
+            case .input(let value):
+                (initialText, initialName) = try LaunchInput.input(value)
+            case .handoff(let location, let request):
+                html = location
+                if let request {
+                    // Always acknowledge / remove the transient Raycast handoff, including failed loads.
+                    defer { try? FileManager.default.removeItem(at: request) }
+                    let data = try Data(contentsOf: request)
+                    if let payload = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        initialText = try LaunchInput.checkedText(payload["text"] as? String ?? "")
+                        initialIndent = payload["indent"] as? Int == 4 ? 4 : 2
+                        initialName = "Clipboard / Selection"
+                    }
+                }
             }
-            // The input handoff is transient; do not leave clipboard contents on disk.
-            try? FileManager.default.removeItem(at: request)
+        } catch {
+            startupError = error.localizedDescription
         }
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .nonPersistent()
@@ -49,9 +71,6 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
         window.level = UserDefaults.standard.bool(forKey: "alwaysOnTop") ? .floating : .normal
         window.center()
         window.makeKeyAndOrderFront(nil)
-        let html = CommandLine.arguments.count > 1
-            ? URL(fileURLWithPath: CommandLine.arguments[1])
-            : Bundle.main.resourceURL!.appendingPathComponent("editor/index.html")
         webView.loadFileURL(html, allowingReadAccessTo: html.deletingLastPathComponent())
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -69,8 +88,9 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
         guard message.frameInfo.isMainFrame, let body = message.body as? [String: Any], let action = body["action"] as? String else { return }
         switch action {
         case "ready":
-            emit(["action": "load", "text": initialText, "name": "Clipboard / Selection", "indent": initialIndent])
+            emit(["action": "load", "text": initialText, "name": initialName, "indent": initialIndent])
             emit(["action": "pin", "value": window.level == .floating])
+            if let startupError { emit(["action": "error", "message": startupError]) }
             initialText = ""
         case "pin":
             let pinned = body["value"] as? Bool ?? false
@@ -95,10 +115,7 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
             panel.beginSheetModal(for: window) { [weak self] response in
                 guard response == .OK, let url = panel.url, let self else { return }
                 do {
-                    let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
-                    guard (attributes[.size] as? Int ?? 0) <= self.maxBytes else { throw NSError(domain: "JSONPreview", code: 1, userInfo: [NSLocalizedDescriptionKey: "The file exceeds 8 MiB."] ) }
-                    let data = try Data(contentsOf: url)
-                    guard data.count <= self.maxBytes, let text = String(data: data, encoding: .utf8) else { throw NSError(domain: "JSONPreview", code: 2, userInfo: [NSLocalizedDescriptionKey: "Choose a UTF-8 text file."] ) }
+                    let text = try LaunchInput.readFile(url)
                     self.emit(["action": "open", "text": text, "name": url.lastPathComponent])
                 } catch { self.emit(["action": "error", "message": error.localizedDescription]) }
             }
@@ -143,8 +160,13 @@ final class EditorDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, W
     }
 }
 
-let app = NSApplication.shared
-app.setActivationPolicy(.regular)
-let delegate = EditorDelegate()
-app.delegate = delegate
-app.run()
+@main
+enum JSONEditorMain {
+    static func main() {
+        let app = NSApplication.shared
+        app.setActivationPolicy(.regular)
+        let delegate = EditorDelegate()
+        app.delegate = delegate
+        app.run()
+    }
+}

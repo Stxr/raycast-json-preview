@@ -4,6 +4,12 @@ Edit, inspect, transform, and convert JSON locally. **Open JSON Editor** launche
 
 [中文说明](README.zh-CN.md)
 
+## Download without the Store
+
+Get the prebuilt universal macOS app and Raycast Script Command from [GitHub Releases](https://github.com/Stxr/raycast-json-preview/releases/latest). Install the app in Applications, copy the included scripts to a permanent folder, then add that folder in Raycast Settings → Extensions → + → Add Script Directory. No Node.js or Xcode is needed.
+
+For the native **Preview JSON** command and selected-text input, the release also provides the full extension source ZIP with a prebuilt helper; install it using Node.js 22+ and `npm ci && npm run dev`. See the [English / 中文 installation guide](docs/install.md) for both methods and the first-launch steps for this ad-hoc signed, unnotarized app.
+
 ![JSON editor with a live transform result](media/editor-transform.png)
 
 ## Requirements and Input
@@ -65,6 +71,8 @@ npm run lint:source
 ```
 
 See [native build provenance](docs/native-build.md) for the universal binary build and verification steps. `npm run build` runs the standard Raycast distribution build using committed assets. `npm run build:all` also rebuilds the native helper.
+
+`npm run test:native` checks launch inputs and file bounds. After committing the validated helper and sources, `npm run package:release` creates a DMG, extension source ZIP, and SHA-256 checksums in `release/v<version>/` from the current commit. The version in `package.json` also sets the app version.
 
 ## License and Reference
 

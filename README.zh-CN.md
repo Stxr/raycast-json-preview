@@ -4,11 +4,14 @@
 
 ## 使用
 
-使用需要 macOS 13+ 与 Raycast。商店分发包含预构建程序，不需要 Node.js 或 Xcode；从源码开发需要 Node.js 22+，重新编译原生窗口需要 Xcode Command Line Tools。
+使用需要 macOS 13+。
+
+**直接下载安装：** 在 [GitHub Releases](https://github.com/Stxr/raycast-json-preview/releases/latest) 下载通用版 DMG，把应用拖入 Applications，把附带的 Raycast Scripts 文件夹复制到固定位置，再在 Raycast 设置 → Extensions → + → Add Script Directory 添加它。搜索 **Open JSON Workbench** 即可读取剪贴板或指定文件，免 Node.js、免 Xcode。此版本未进行 Apple 公证，首次启动可能需要在系统设置中确认；完整步骤见 [安装说明](docs/install.md)。
+
+**完整 Raycast 扩展：** 若需要 Raycast 内部树状预览与选中文本输入，下载 Release 的 raycast-extension.zip，安装 Node.js 22+，进入解压目录执行以下命令。源码包已包含预构建窗口，无需重新编译 Swift；只有修改原生窗口时才需要 Xcode Command Line Tools 和 `npm run build:editor`。
 
 ```sh
 npm ci
-npm run build:editor
 npm run dev
 ```
 
@@ -48,6 +51,7 @@ TypeScript 类型由当前样例推断，数组最多采样前 200 项，适合�
 
 ```sh
 npm test
+npm run test:native
 npm run typecheck
 npm run lint
 npm run build
@@ -55,7 +59,9 @@ npm run build
 
 `npm run lint` 检查商店元数据与 Raycast 源码；`npm run lint:source` 检查全部源码。商店作者账号为 `tang_xiangrun`。
 
-本地窗口源码在 `native/JSONEditor.swift`，网页 UI 在 `editor/`，共用解析和转换逻辑在 `src/lib/`。生成的原生程序与静态编辑器放在 `assets/`，由 Raycast 打包携带。原生窗口包含 Apple Silicon 与 Intel 双架构；重新编译使用 `npm run build:editor`，构建来源及校验值见 `docs/native-build.json`。
+本地窗口源码在 `native/JSONEditor.swift` 与 `native/LaunchInput.swift`，网页 UI 在 `editor/`，共用解析和转换逻辑在 `src/lib/`。生成的原生程序与静态编辑器放在 `assets/`，由 Raycast 打包携带。原生窗口包含 Apple Silicon 与 Intel 双架构；重新编译使用 `npm run build:editor`，构建来源及校验值见 `docs/native-build.json`。
+
+版本由 `package.json` 管理，并写入应用的 Info.plist。提交已验证的源码和预构建应用后，执行 `npm run package:release`，会从当前提交生成 DMG、完整扩展源码 ZIP 和 SHA-256 校验清单，输出到 `release/v<版本>/`。
 
 ## 参考包
 
