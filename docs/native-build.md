@@ -24,3 +24,5 @@ shasum -a 256 native/JSONEditor.swift 'assets/JSON Workbench.app/Contents/MacOS/
 ```
 
 The standard `npm run build` packages committed assets and does not require a local Swift compilation. The helper has no network behavior. WKWebView loads bundled local files with a restrictive content security policy and a nonpersistent data store.
+
+The generated `editor.js` contains the embedded QuickJS WASM byte data. Git treats it as binary to preserve those bytes and avoid diffing generated content; its sources remain in `editor/`, `src/lib/`, and the locked npm packages.
